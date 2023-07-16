@@ -1,0 +1,25 @@
+name: Create Tag
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Publish
+        if: (github.event.pull_request.merged == true || (github.ref == 'refs/heads/main' && github.event_name == 'push'))
+        run: |
+          tag_name="v0.0.$GITHUB_RUN_NUMBER"
+          git tag -a $tag_name -m "${{ github.event.head_commit.message }}"
+          git push origin $tag_name
